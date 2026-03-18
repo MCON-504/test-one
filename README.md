@@ -1,145 +1,146 @@
-# RecipeShare Flask Starter
+# MCON 504 — Test 1: RecipeShare API
 
-A starter Flask backend for a **RecipeShare** project using:
+## Overview
 
-- Flask
-- PostgreSQL
-- Flask-SQLAlchemy
-- Flask-Migrate
-- python-dotenv
+In this test you will complete a partially-implemented Flask REST API for a recipe-sharing application. The models (`User` and `Recipe`) and the database configuration are already provided. **Your job is to implement the TODO items** in two files:
 
+| File | What you need to do |
+|---|---|
+| `app/services.py` | Implement **five** service functions that interact with the database |
+| `app/routes.py` | Implement **three** route handlers that call the service functions |
 
+When you are finished, the API should support **creating**, **reading**, **updating**, and **deleting** recipes.
 
-## Project Structure
+---
+
+## Project Layout
 
 ```text
-recipeshare-flask-starter/
+test-one/
 ├── app/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── extensions.py
-│   ├── models.py
-│   └── routes.py
-├── .env.example
-├── .gitignore
-├── README.md
+│   ├── __init__.py        # App factory (do NOT modify)
+│   ├── config.py          # Database configuration (do NOT modify)
+│   ├── extensions.py      # SQLAlchemy & Migrate instances (do NOT modify)
+│   ├── models.py          # User & Recipe models (do NOT modify)
+│   ├── services.py        # ⬅️  TODO – implement service functions here
+│   └── routes.py          # ⬅️  TODO – implement route handlers here
 ├── requirements.txt
-├── run.py
-└── seed.py
+├── run.py                 # Entry point
+├── seed.py                # Seeds the DB with sample data
+└── README.md              # (this file)
 ```
 
-## Features Included
+---
 
-- Flask app factory
-- PostgreSQL configuration via environment variables
-- SQLAlchemy models for `User` and `Recipe`
-- Relationship: one user can have many recipes
-- Basic API endpoints:
-  - `GET /`
-  - `GET /api/recipes`
-  - `GET /api/recipes/<id>`
-  - `POST /api/recipes`
-- Seed script with starter data
+## Setup (do this first)
 
-## 1. Create and activate a virtual environment
+### 1. Create & activate a virtual environment
 
-### macOS / Linux
+### 2. Install dependencies
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
 
-### Windows PowerShell
 
-```cmd
-python -m venv .venv
-.venv\Scripts\Activate.bat
-```
+## Test Instructions
 
-## 2. Install dependencies
+Complete the following steps **in order**.
 
-```bash
-pip install -r requirements.txt
-```
+### Step 1 — Implement the TODOs
 
-## 3. Create the PostgreSQL database
+Open the two files marked with TODOs and implement every function that contains a `# TODO` comment. Each function has a docstring describing exactly what it should do.
 
-In PostgreSQL:
+#### `app/services.py` — Service Functions
 
-```sql
-CREATE DATABASE recipeshare;
-```
+| Function | Description |
+|---|---|
+| `get_all_recipes()` | Query all recipes ordered by `created_at` descending and return a list of dicts |
+| `get_recipe_by_id(recipe_id)` | Fetch a single recipe by id (404 if not found) and return it as a dict |
+| `create_recipe(data)` | Create a new `Recipe` from the data dict, save it, and return the new recipe as a dict |
+| `delete_recipe(recipe_id)` | Fetch a recipe by id (404 if not found) and delete it |
+| `update_recipe(recipe_id, data)` | Fetch a recipe by id (404 if not found), update the fields present in `data`, save, and return the updated recipe as a dict |
 
-## 4. Set environment variables
+#### `app/routes.py` — Route Handlers
 
-Copy `.env.example` to `.env` and update the connection string.
+| Route | Method | Description |
+|---|---|---|
+| `/api/recipes` | `POST` | Parse the JSON body, validate required fields (`title`, `description`, `instructions`, `prep_time`, `user_id`), call `create_recipe()`, and return the result with status **201** |
+| `/api/recipes/<id>` | `PUT` | Parse the JSON body, call `update_recipe()`, and return the updated recipe |
+| `/api/recipes/<id>` | `DELETE` | Call `delete_recipe()` and return a **204 No Content** response |
 
-Example:
+> The `GET` routes and the home route are already implemented for you.
 
-```env
-DATABASE_URL=postgresql://postgres:password@localhost/recipeshare
-FLASK_APP=run.py
-FLASK_ENV=development
-```
+### Step 2 — Initialize the database, create a migration, and apply it
 
-## 5. Initialize migrations
+Make sure to add migrations to git so they are tracked by version control.
 
-```bash
-flask db init
-flask db migrate -m "Create user and recipe tables"
-flask db upgrade
-```
 
-## 6. Seed the database
+### Step 3 — Seed the database (optional, but recommended for testing)
 
 ```bash
 python seed.py
 ```
 
-## 7. Run the app
+### Step 4 — Run the server
 
 ```bash
 flask run
 ```
 
-Or:
+or
 
 ```bash
 python run.py
 ```
 
-## Sample Endpoints
 
-### Get all recipes
 
-```http
-GET /api/recipes
+### Step 5 — Test your endpoints
+
+Use **curl**, **Postman**, or any HTTP client to verify each endpoint.
+
+#### Create a recipe (`POST`)
+
+```bash
+curl -X POST http://127.0.0.1:5000/api/recipes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Tomato Soup",
+    "description": "Simple homemade soup.",
+    "instructions": "Cook tomatoes, blend, and simmer.",
+    "prep_time": 30,
+    "user_id": 1
+  }'
 ```
 
-### Get one recipe
+Expected: **201 Created** with the new recipe JSON.
 
-```http
-GET /api/recipes/1
+#### Update a recipe (`PUT`)
+
+```bash
+curl -X PUT http://127.0.0.1:5000/api/recipes/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Updated Tomato Soup",
+    "prep_time": 25
+  }'
 ```
 
-### Create a recipe
+Expected: **200 OK** with the updated recipe JSON.
 
-```http
-POST /api/recipes
-Content-Type: application/json
+#### Delete a recipe (`DELETE`)
+
+```bash
+curl -X DELETE http://127.0.0.1:5000/api/recipes/1
 ```
 
-Example body:
+Expected: **204 No Content** (empty response body).
 
-```json
-{
-  "title": "Tomato Soup",
-  "description": "Simple homemade soup.",
-  "instructions": "Cook tomatoes, blend, and simmer.",
-  "prep_time": 30,
-  "user_id": 1
-}
-```
+---
 
+## Grading Criteria
 
+- All five service functions in `services.py` are correctly implemented.
+- All three route handlers in `routes.py` are correctly implemented.
+- The database is initialized and migrated without errors.
+- `POST`, `PUT`, and `DELETE` requests produce the correct responses.
+
+Good luck!

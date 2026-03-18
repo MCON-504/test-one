@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from .extensions import db
-from .models import Recipe
+from .services import get_all_recipes, get_recipe_by_id, create_recipe, delete_recipe, update_recipe
 
 main = Blueprint("main", __name__)
 
@@ -12,35 +11,54 @@ def home():
 
 
 @main.route("/api/recipes", methods=["GET"])
-def get_recipes():
-    recipes = Recipe.query.order_by(Recipe.created_at.desc()).all()
-    return jsonify([recipe.to_dict() for recipe in recipes])
+def list_recipes():
+    """Return a JSON array of all recipes."""
+    recipes = get_all_recipes()
+    return jsonify(recipes)
 
 
 @main.route("/api/recipes/<int:recipe_id>", methods=["GET"])
 def get_recipe(recipe_id: int):
-    recipe = Recipe.query.get_or_404(recipe_id)
-    return jsonify(recipe.to_dict())
+    """Return a single recipe as JSON."""
+    recipe = get_recipe_by_id(recipe_id)
+    return jsonify(recipe)
 
 
 @main.route("/api/recipes", methods=["POST"])
-def create_recipe():
-    data = request.get_json() or {}
+def add_recipe():
+    """Create a new recipe.
 
-    required_fields = ["title", "description", "instructions", "prep_time", "user_id"]
-    missing = [field for field in required_fields if field not in data]
-    if missing:
-        return {"error": f"Missing required fields: {', '.join(missing)}"}, 400
+    Steps:
+        1. Parse the JSON body from the request.
+        2. Validate that required fields are present:
+           title, description, instructions, prep_time, user_id.
+           If any are missing, return a 400 error with a message listing them.
+        3. Call create_recipe() from services and return the result with status 201.
+    """
+    # TODO: Implement this route
+    pass
 
-    recipe = Recipe(
-        title=data["title"],
-        description=data["description"],
-        instructions=data["instructions"],
-        prep_time=data["prep_time"],
-        user_id=data["user_id"],
-    )
 
-    db.session.add(recipe)
-    db.session.commit()
+@main.route("/api/recipes/<int:recipe_id>", methods=["PUT"])
+def modify_recipe(recipe_id: int):
+    """Update an existing recipe.
 
-    return jsonify(recipe.to_dict()), 201
+    Steps:
+        1. Parse the JSON body from the request.
+        2. Call update_recipe() from services with the recipe_id and data.
+        3. Return the updated recipe as JSON.
+    """
+    # TODO: Implement this route
+    pass
+
+
+@main.route("/api/recipes/<int:recipe_id>", methods=["DELETE"])
+def remove_recipe(recipe_id: int):
+    """Delete a recipe.
+
+    Steps:
+        1. Call delete_recipe() from services with the recipe_id.
+        2. Return a 204 No Content response.
+    """
+    # TODO: Implement this route
+    pass
