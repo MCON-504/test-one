@@ -71,6 +71,13 @@ Open the two files marked with TODOs and implement every function that contains 
 ### Step 2 — Initialize the database, create a migration, and apply it
 
 Make sure to add migrations to git so they are tracked by version control.
+Note: you can run these commands from the terminal using Flask CLI like that:
+
+```bash
+flask db init 
+...
+```
+Make sure to add migrations folder and migrations to git so they are tracked by version control.
 
 
 ### Step 3 — Seed the database (optional, but recommended for testing)
