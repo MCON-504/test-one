@@ -92,6 +92,8 @@ python seed.py
 flask run
 ```
 
+
+
 or
 
 ```bash
