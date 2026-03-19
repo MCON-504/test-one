@@ -35,8 +35,14 @@ def add_recipe():
            If any are missing, return a 400 error with a message listing them.
         3. Call create_recipe() from services and return the result with status 201.
     """
-    # TODO: Implement this route
-    pass
+    data = request.get_json()
+    required_fields = {"title", "description", "instructions", "prep_time", "user_id"}
+    missing_fields = required_fields - data.keys()
+    if missing_fields:
+        return jsonify({"error": f"Missing fields: {', '.join(missing_fields)}"}), 400
+
+    new_recipe = create_recipe(data)
+    return jsonify(new_recipe), 201
 
 
 @main.route("/api/recipes/<int:recipe_id>", methods=["PUT"])
@@ -48,8 +54,9 @@ def modify_recipe(recipe_id: int):
         2. Call update_recipe() from services with the recipe_id and data.
         3. Return the updated recipe as JSON.
     """
-    # TODO: Implement this route
-    pass
+    data = request.get_json()
+    updated_recipe = update_recipe(recipe_id, data)
+    return jsonify(updated_recipe)
 
 
 @main.route("/api/recipes/<int:recipe_id>", methods=["DELETE"])
@@ -60,5 +67,5 @@ def remove_recipe(recipe_id: int):
         1. Call delete_recipe() from services with the recipe_id.
         2. Return a 204 No Content response.
     """
-    # TODO: Implement this route
-    pass
+    delete_recipe(recipe_id)
+    return "", 204

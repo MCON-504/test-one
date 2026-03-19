@@ -10,8 +10,8 @@ def get_all_recipes() -> list[dict]:
         2. Convert each Recipe to a dict using its to_dict() method.
         3. Return the list of dicts.
     """
-    # TODO: Implement this method
-    pass
+    recipes = Recipe.query.order_by(Recipe.created_at.desc()).all()
+    return [recipe.to_dict() for recipe in recipes]
 
 def get_recipe_by_id(recipe_id: int) -> dict:
     """Return a single recipe dict by its id, or 404.
@@ -20,8 +20,8 @@ def get_recipe_by_id(recipe_id: int) -> dict:
         1. Use query.get_or_404() to fetch the Recipe.
         2. Return the recipe as a dict.
     """
-    # TODO: Implement this method
-    pass
+    recipe = Recipe.query.get_or_404(recipe_id)
+    return recipe.to_dict()
 
 
 def create_recipe(data: dict) -> dict:
@@ -34,8 +34,16 @@ def create_recipe(data: dict) -> dict:
         2. Add it to the database session and commit.
         3. Return the new recipe as a dict.
     """
-    # TODO: Implement this method
-    pass
+    recipe = Recipe(
+        title=data["title"],
+        description=data["description"],
+        instructions=data["instructions"],
+        prep_time=data["prep_time"],
+        user_id=data["user_id"],
+    )
+    db.session.add(recipe)
+    db.session.commit()
+    return recipe.to_dict()
 
 
 def delete_recipe(recipe_id: int) -> None:
@@ -45,8 +53,9 @@ def delete_recipe(recipe_id: int) -> None:
         1. Fetch the Recipe by id (404 if missing).
         2. Delete it from the session and commit.
     """
-    # TODO: Implement this method
-    pass
+    recipe = Recipe.query.get_or_404(recipe_id)
+    db.session.delete(recipe)
+    db.session.commit()
 
 
 def update_recipe(recipe_id: int, data: dict) -> dict:
@@ -60,6 +69,17 @@ def update_recipe(recipe_id: int, data: dict) -> dict:
         3. Commit the changes.
         4. Return the updated recipe as a dict.
     """
-    # TODO: Implement this method
-    pass
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    if "title" in data:
+        recipe.title = data["title"]
+    if "description" in data:
+        recipe.description = data["description"]
+    if "instructions" in data:
+        recipe.instructions = data["instructions"]
+    if "prep_time" in data:
+        recipe.prep_time = data["prep_time"]
+
+    db.session.commit()
+    return recipe.to_dict()
 
